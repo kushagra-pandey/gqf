@@ -138,7 +138,35 @@ int main(int argc, char** argv) {
                         break;
                 }
     } 
+	
 
+
+
+
+    /* Accuracy test */
+
+    for (int i = 0; i < endofarr; i++) {
+	uint64_t hash = hash_64(arr[i], BITMASK(nhashbits));
+        uint32_t processName = hash >> (nhashbits - processorBits);
+        uint64_t localhash = hash & BITMASK(nhashbits - processorBits);
+        if (processName == rank) {
+		
+    		uint64_t count = qf_count_key_value(&qf, arr[i], 0, 0);
+		if (count < freq) {
+			printf("Failed insertion for key %d, frequency %d: got count %d\n", arr[i], freq, count);
+		}
+	}
+    }
+    //int numElements = buffer_recv[(buffer_send_length + 1) * rank];
+    //int start = (buffer_send_length + 1) * rank + 1;
+    for (int i = start; i < start + numElements;i++) {
+        //int ret = qf_inserthash(&qf, localhash, arr[i],0, freq, QF_NO_LOCK);
+    	uint64_t count = qf_count_key_value(&qf, buffer_recv[i], 0, 0);
+        if (count < freq) {
+        	printf("Failed insertion for key %d, frequency %d: got count %d\n", buffer_recv[i], freq, count);
+        }
+    }
+    
 
     MPI_Finalize();
 }

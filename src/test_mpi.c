@@ -50,12 +50,42 @@ int main(int argc, char** argv) {
     srand(rank); //different seed for each process
 
     for (int i = 0; i < nvals / size; i++) {
-    	arr[i] = rand() % nslots; //different seedfor each process, so the numbers are different
+    	arr[i] = rand() % nslots; //different seed for each process, so the numbers are different
     }
     printf("Process %d, first value is %d\n", rank, arr[0]);
 
     int endofarr = (nvals / size);
+    int buffer_send_length = endofarr; //20 vals in each process bucket
+    int* buffer_send = (int*) malloc(sizeof(int) * (buffer_send_length+1) * size);
+    for (int i = 0; i < (buffer_send_length+1)*size;i++) {
+    	buffer_send[i] = 0;
+    }
+    int counts_send[size];
+    for (int i = 0; i < size; i++) {
+    	counts_send[i] = buffer_send_length + 1;
+    }
+    int displacements_send[size];
+    for (int i = 0; i < size; i++) {
+    	displacements_send[i] = (buffer_send_length + 1) * i;
+    }
+
+    int* buffer_recv = (int*) malloc(sizeof(int) * (buffer_send_length+1) * size);
+    for (int i = 0; i < (buffer_send_length+1)*size;i++) {
+        buffer_recv[i] = 0;
+    }
+    int counts_recv[size];
+    for (int i = 0; i < size; i++) {
+        counts_recv[i] = buffer_send_length + 1;
+    }
+    int displacements_recv[size];
+    for (int i = 0; i < size; i++) {
+        displacements_recv[i] = (buffer_send_length + 1) * i;
+    }
+
+
+
     int i = 0;
+
     while (i < endofarr) {
     	//uint64_t hashbucket = qf_gethashbucket(&qf, arr[i]);
 	
@@ -64,13 +94,50 @@ int main(int argc, char** argv) {
 	uint32_t processName = hash >> (nhashbits - processorBits);
 	uint64_t localhash = hash & BITMASK(nhashbits - processorBits);
 	if (processName == rank) {
-		qf_inserthash(&qf, localhash, arr[i],0, freq, QF_NO_LOCK);
+		//int ret = qf_inserthash(&qf, localhash, arr[i],0, freq, QF_NO_LOCK);
+		int ret = qf_insert(&qf, arr[i], 0, freq, QF_NO_LOCK);
+		if (ret < 0) {
+			printf("Num successful: %d\n", i);
+			if (ret == QF_NO_SPACE)
+				printf("CQF is full.\n");
+			else if (ret == QF_COULDNT_LOCK)
+				printf("TRY_ONCE_LOCK failed.\n");
+			else
+				printf("Does not recognise return value.\n");
+			break;
+		}
+		/*
+		 ????
+		 Why does insert keep failing?
+		 
+		 */
 	} else {
-		
+		//add to bucket
+		buffer_send[(buffer_send_length + 1) * processName]++;
+		int offset = buffer_send[(buffer_send_length + 1) * processName];
+		int index = (buffer_send_length + 1) * processName + offset;
+		buffer_send[index] = arr[i];		
 	}
 	i++;
     }
+    MPI_Alltoallv(buffer_send, counts_send, displacements_send, MPI_INT, buffer_recv, counts_recv, displacements_recv, MPI_INT, MPI_COMM_WORLD);
 
+    int numElements = buffer_recv[(buffer_send_length + 1) * rank];
+    int start = (buffer_send_length + 1) * rank + 1;
+    for (int i = start; i < start + numElements;i++) {
+    	//int ret = qf_inserthash(&qf, localhash, arr[i],0, freq, QF_NO_LOCK);
+                int ret = qf_insert(&qf, buffer_recv[i], 0, freq, QF_NO_LOCK);
+                if (ret < 0) {
+                        printf("Num successful: %d\n", i);
+                        if (ret == QF_NO_SPACE)
+                                printf("CQF is full.\n");
+                        else if (ret == QF_COULDNT_LOCK)
+                                printf("TRY_ONCE_LOCK failed.\n");
+                        else
+                                printf("Does not recognise return value.\n");
+                        break;
+                }
+    } 
 
 
     MPI_Finalize();

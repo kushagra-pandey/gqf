@@ -130,7 +130,10 @@ int main(int argc, char** argv) {
     int start = (buffer_send_length + 1) * rank + 1;
     for (int i = start; i < start + numElements;i++) {
     	//int ret = qf_inserthash(&qf, localhash, arr[i],0, freq, QF_NO_LOCK);
-                int ret = qf_insert(&qf, buffer_recv[i], 0, freq, QF_NO_LOCK);
+                uint64_t hash = hash_64(buffer_recv[i], BITMASK(nhashbits));
+                uint32_t processName = hash >> (nhashbits - processorBits);
+                uint64_t localhash = hash & BITMASK(nhashbits - processorBits);
+                int ret = qf_insert(&qf, localhash, 0, freq, QF_NO_LOCK | QF_KEY_IS_HASH);
                 if (ret < 0) {
                         printf("Num successful: %d\n", i);
                         if (ret == QF_NO_SPACE)
@@ -165,7 +168,7 @@ int main(int argc, char** argv) {
     //int start = (buffer_send_length + 1) * rank + 1;
     for (int i = start; i < start + numElements;i++) {
         //int ret = qf_inserthash(&qf, localhash, arr[i],0, freq, QF_NO_LOCK);
-        uint64_t hash = hash_64(arr[i], BITMASK(nhashbits));
+        uint64_t hash = hash_64(buffer_recv[i], BITMASK(nhashbits));
         uint32_t processName = hash >> (nhashbits - processorBits);
         uint64_t localhash = hash & BITMASK(nhashbits - processorBits);
 

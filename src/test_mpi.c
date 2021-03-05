@@ -36,19 +36,22 @@ int main(int argc, char** argv) {
     uint64_t localqbits = qbits - processorBits;
     uint64_t localhashbits = localqbits + 8;
     uint64_t localslots = (1ULL << localqbits);
-    if (!qf_initfile(&qf, localslots, localhashbits /* since we are using 4 processes, and the qf will be partitioned into 4 8 bit qfs*/, 0, QF_HASH_INVERTIBLE, 0,
+    /*if (!qf_initfile(&qf, localslots, localhashbits, 0, QF_HASH_INVERTIBLE, 0,
                                      "mycqf.file")) {
         fprintf(stderr, "Can't allocate CQF.\n");
         abort();
-    }
+    }*/
+    if (!qf_malloc(&qf, localslots, localhashbits, 0, QF_HASH_INVERTIBLE, 0)) {
+		fprintf(stderr, "Can't allocate CQF.\n");
+		abort();
+	}
 
     
-    qf_set_auto_resize(&qf, true);
+    //qf_set_auto_resize(&qf, true);
     
     uint64_t* arr = malloc(sizeof(arr[0]) * (nvals / size));
     
     srand(rank); //different seed for each process
-    printf("Process %d\n", rank);
     for (int i = 0; i < nvals / size; i++) {
     	arr[i] = rand() % nslots; //different seed for each process, so the numbers are different
     }
@@ -95,8 +98,9 @@ int main(int argc, char** argv) {
 	uint64_t localhash = hash & BITMASK(nhashbits - processorBits);
 	if (processName == rank) {
 		//int ret = qf_inserthash(&qf, localhash, arr[i],0, freq, QF_NO_LOCK);
-		int ret = qf_insert(&qf, arr[i], 0, freq, QF_NO_LOCK);
-		if (ret < 0) {
+		//int ret = qf_insert(&qf, arr[i], 0, freq, QF_NO_LOCK);
+		int ret = qf_insert(&qf, localhash, 0, freq, QF_NO_LOCK | QF_KEY_IS_HASH);
+        if (ret < 0) {
 			printf("Num successful: %d\n", i);
 			if (ret == QF_NO_SPACE)
 				printf("CQF is full.\n");
@@ -146,22 +150,26 @@ int main(int argc, char** argv) {
     /* Accuracy test */
 
     for (int i = 0; i < endofarr; i++) {
-	uint64_t hash = hash_64(arr[i], BITMASK(nhashbits));
+	    uint64_t hash = hash_64(arr[i], BITMASK(nhashbits));
         uint32_t processName = hash >> (nhashbits - processorBits);
         uint64_t localhash = hash & BITMASK(nhashbits - processorBits);
         if (processName == rank) {
 		
-    		uint64_t count = qf_count_key_value(&qf, arr[i], 0, 0);
-		if (count < freq) {
-			printf("Failed insertion for key %d, frequency %d: got count %d\n", arr[i], freq, count);
-		}
-	}
+    		uint64_t count = qf_count_key_value(&qf, localhash, 0, QF_KEY_IS_HASH);
+            if (count < freq) {
+                printf("Failed insertion for key %d, frequency %d: got count %d\n", arr[i], freq, count);
+            }
+	    }
     }
     //int numElements = buffer_recv[(buffer_send_length + 1) * rank];
     //int start = (buffer_send_length + 1) * rank + 1;
     for (int i = start; i < start + numElements;i++) {
         //int ret = qf_inserthash(&qf, localhash, arr[i],0, freq, QF_NO_LOCK);
-    	uint64_t count = qf_count_key_value(&qf, buffer_recv[i], 0, 0);
+        uint64_t hash = hash_64(arr[i], BITMASK(nhashbits));
+        uint32_t processName = hash >> (nhashbits - processorBits);
+        uint64_t localhash = hash & BITMASK(nhashbits - processorBits);
+
+    	uint64_t count = qf_count_key_value(&qf, localhash, 0, QF_KEY_IS_HASH);
         if (count < freq) {
         	printf("Failed insertion for key %d, frequency %d: got count %d\n", buffer_recv[i], freq, count);
         }

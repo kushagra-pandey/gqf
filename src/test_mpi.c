@@ -48,7 +48,7 @@ int main(int argc, char** argv) {
     uint64_t* arr = malloc(sizeof(arr[0]) * (nvals / size));
     
     srand(rank); //different seed for each process
-
+    printf("Process %d\n", rank);
     for (int i = 0; i < nvals / size; i++) {
     	arr[i] = rand() % nslots; //different seed for each process, so the numbers are different
     }

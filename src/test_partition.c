@@ -39,7 +39,7 @@ int main(int argc, char **argv)
     uint64_t *vals;
     vals = (uint64_t*)malloc(nvals*sizeof(vals[0]));
         //RAND_bytes((unsigned char *)vals, sizeof(*vals) * nvals);
-    srand(0);
+    srand(1);
     for (uint64_t i = 0; i < nvals; i++) {
         vals[i] = (1 * rand()) % qf.metadata->range;
         /*vals[i] = rand() % qf.metadata->range;*/

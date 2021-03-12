@@ -17,7 +17,7 @@ int main(int argc, char **argv)
 
 
 
-    QF cfr;
+    QF qf;
     uint64_t qbits = 10;
     uint64_t freq = 4;
     uint64_t nhashbits = qbits + 8;
@@ -25,14 +25,14 @@ int main(int argc, char **argv)
     uint64_t nvals = 750*nslots/1000;
     nvals = nvals/freq;
 
-    if (!qf_malloc(&cfr, nslots, nhashbits, 0, QF_HASH_INVERTIBLE, 0)) {
+    if (!qf_malloc(&qf, nslots, nhashbits, 0, QF_HASH_INVERTIBLE, 0)) {
             fprintf(stderr, "Can't allocate CQF.\n");
             abort();
     }
 
 
     /* First, a sanity test to make sure a gqf works */
-
+    uint64_t *vals;
     vals = (uint64_t*)malloc(nvals*sizeof(vals[0]));
         //RAND_bytes((unsigned char *)vals, sizeof(*vals) * nvals);
     srand(0);
@@ -60,7 +60,7 @@ int main(int argc, char **argv)
     /* Lookup inserted keys and counts. */
     for (uint64_t i = 0; i < nvals; i++) {
         uint64_t count = qf_count_key_value(&qf, vals[i], 0, 0);
-        if (count < key_count) {
+        if (count < freq) {
             fprintf(stderr, "failed lookup after insertion for %lx %ld.\n", vals[i],
                             count);
             abort();

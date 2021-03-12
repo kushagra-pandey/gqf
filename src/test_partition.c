@@ -73,7 +73,78 @@ int main(int argc, char **argv)
     /* Now, we create 4 quotient filters each with 8 quotient bits, and for each query we use the top 2 bits
         of the hash to identify the qf and the rest of the bits as the hash */
     
+    QF qf1;
+    QF qf2; 
+    QF qf3;
+    QF qf4;
 
+    qbits = 8;
+    nhashbits = qbits + 8;
+    nslots = (1ULL << qbits);
+
+    if (!qf_malloc(&qf1, nslots, nhashbits, 0, QF_HASH_INVERTIBLE, 0)) {
+            fprintf(stderr, "Can't allocate CQF.\n");
+            abort();
+    }
+    if (!qf_malloc(&qf2, nslots, nhashbits, 0, QF_HASH_INVERTIBLE, 0)) {
+            fprintf(stderr, "Can't allocate CQF.\n");
+            abort();
+    }
+    if (!qf_malloc(&qf3, nslots, nhashbits, 0, QF_HASH_INVERTIBLE, 0)) {
+            fprintf(stderr, "Can't allocate CQF.\n");
+            abort();
+    }
+    if (!qf_malloc(&qf4, nslots, nhashbits, 0, QF_HASH_INVERTIBLE, 0)) {
+            fprintf(stderr, "Can't allocate CQF.\n");
+            abort();
+    }
+    QF qfarr[4];
+    qfarr[0] = qf1;
+    qfarr[1] = qf2;
+    qfarr[2] = qf3;
+    qfarr[3] = qf4;
+
+    nhashbits = nhashbits + 2;
+    uint64_t processorBits = 2;
+
+    /* Insert keys in the CQF */
+    for (uint64_t i = 0; i < nvals; i++) {
+
+        uint64_t hash = hash_64(vals[i], BITMASK(nhashbits));
+	
+	    uint32_t processName = hash >> (nhashbits - processorBits);
+	    uint64_t localhash = hash & BITMASK(nhashbits - processorBits);
+
+
+        int ret = qf_insert(&(qfarr[processName]), localhash, 0, freq, QF_NO_LOCK | QF_KEY_IS_HASH);
+
+        if (ret < 0) {
+            fprintf(stderr, "failed insertion for key: %lx %d.\n", vals[i], 50);
+            if (ret == QF_NO_SPACE)
+                fprintf(stderr, "CQF is full.\n");
+            else if (ret == QF_COULDNT_LOCK)
+                fprintf(stderr, "TRY_ONCE_LOCK failed.\n");
+            else
+                fprintf(stderr, "Does not recognise return value.\n");
+            abort();
+        }
+    }
+
+    /* Lookup inserted keys and counts. */
+    for (uint64_t i = 0; i < nvals; i++) {
+        uint64_t hash = hash_64(vals[i], BITMASK(nhashbits));
+	
+	    uint32_t processName = hash >> (nhashbits - processorBits);
+	    uint64_t localhash = hash & BITMASK(nhashbits - processorBits);
+
+        uint64_t count = qf_count_key_value(&(qfarr[processName]), vals[i], 0, QF_KEY_IS_HASH);
+        if (count < freq) {
+            fprintf(stderr, "failed lookup after insertion for %lx %ld.\n", vals[i],
+                            count);
+            abort();
+        }
+    }
+    printf("Finished querying partitioned cqf\n");
 
 
 }

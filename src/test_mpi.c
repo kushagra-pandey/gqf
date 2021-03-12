@@ -83,7 +83,7 @@ int main(int argc, char** argv) {
     for (int i = 0; i < size; i++) {
         displacements_recv[i] = (buffer_send_length + 1) * i;
     }
-
+    printf("successfully initialized alltoallv buffers\n\n");
 
 
     int i = 0;

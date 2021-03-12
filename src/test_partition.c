@@ -11,31 +11,24 @@
 #include "include/gqf.h"
 #include "include/gqf_int.h"
 #include "include/gqf_file.h"
-QF* initializeQF(uint64_t qbits, uint64_t freq) {
-    QF qf;
-    uint64_t nhashbits = qbits + 8;
-    uint64_t nslots = (1ULL << qbits);
-    uint64_t nvals = 750*nslots/1000;
-    nvals = nvals/freq;
-    if (!qf_malloc(&qf, nslots, nhashbits, 0, QF_HASH_INVERTIBLE, 0)) {
-            fprintf(stderr, "Can't allocate CQF.\n");
-            abort();
-    }
-    return &qf;
-}
+
 int main(int argc, char **argv)
 {
 
+
+
+    QF qf;
     uint64_t qbits = 10;
     uint64_t freq = 4;
     uint64_t nhashbits = qbits + 8;
     uint64_t nslots = (1ULL << qbits);
     uint64_t nvals = 750*nslots/1000;
-    
-    QF qf = *(initializeQF(qbits, 4));
-    
+    nvals = nvals/freq;
 
-    
+    if (!qf_malloc(&qf, nslots, nhashbits, 0, QF_HASH_INVERTIBLE, 0)) {
+            fprintf(stderr, "Can't allocate CQF.\n");
+            abort();
+    }
 
 
     /* First, a sanity test to make sure a gqf works */

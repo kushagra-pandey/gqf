@@ -13,8 +13,6 @@
 #include "include/gqf_file.h"
 QF* initializeQF(uint64_t qbits, uint64_t freq) {
     QF qf;
-    uint64_t qbits = 10;
-    uint64_t freq = 4;
     uint64_t nhashbits = qbits + 8;
     uint64_t nslots = (1ULL << qbits);
     uint64_t nvals = 750*nslots/1000;
@@ -28,8 +26,13 @@ QF* initializeQF(uint64_t qbits, uint64_t freq) {
 int main(int argc, char **argv)
 {
 
-
-    QF qf = *(initializeQF(10, 4));
+    uint64_t qbits = 10;
+    uint64_t freq = 4;
+    uint64_t nhashbits = qbits + 8;
+    uint64_t nslots = (1ULL << qbits);
+    uint64_t nvals = 750*nslots/1000;
+    
+    QF qf = *(initializeQF(qbits, 4));
     
 
     
@@ -77,7 +80,7 @@ int main(int argc, char **argv)
     /* Now, we create 4 quotient filters each with 8 quotient bits, and for each query we use the top 2 bits
         of the hash to identify the qf and the rest of the bits as the hash */
     
-    
+
 
 
 }

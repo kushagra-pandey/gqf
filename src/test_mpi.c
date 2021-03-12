@@ -53,7 +53,7 @@ int main(int argc, char** argv) {
     
     srand(rank); //different seed for each process
     for (int i = 0; i < nvals; i++) {
-    	arr[i] = rand() % nslots; //different seed for each process, so the numbers are different
+    	arr[i] = rand() % qf.metadata->range; //different seed for each process, so the numbers are different
     }
     printf("Process %d, first value is %d\n", rank, arr[0]);
 

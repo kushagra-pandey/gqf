@@ -178,7 +178,7 @@ int main(int argc, char** argv) {
 
     /* Accuracy test */
 
-    for (int i = 0; i < endofarr; i++) {
+    for (int i = 0; i < nvals; i++) {
 	    uint64_t hash = hash_64(arr[i], BITMASK(nhashbits));
         uint32_t processName = hash >> (nhashbits - processorBits);
         uint64_t localhash = hash & BITMASK(nhashbits - processorBits);

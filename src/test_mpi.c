@@ -51,13 +51,13 @@ int main(int argc, char** argv) {
     nvals = (uint64_t) ((nvals / size) * 0.9);
     uint64_t* arr = malloc(sizeof(arr[0]) * nvals);
     
-    srand(rank); //different seed for each process
+    srand(2*rank); //different seed for each process
     for (int i = 0; i < nvals; i++) {
     	arr[i] = rand() % qf.metadata->range; //different seed for each process, so the numbers are different
     }
     printf("Process %d, first value is %d\n", rank, arr[0]);
 
-    int buffer_send_length = nvals; //20 vals in each process bucket
+    int buffer_send_length = nvals; 
     int* buffer_send = (int*) malloc(sizeof(int) * (buffer_send_length+1) * size);
     for (int i = 0; i < (buffer_send_length+1)*size;i++) {
     	buffer_send[i] = 0;

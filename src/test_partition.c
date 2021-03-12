@@ -141,7 +141,7 @@ int main(int argc, char **argv)
 	    uint32_t processName = hash >> (nhashbits - processorBits);
 	    uint64_t localhash = hash & BITMASK(nhashbits - processorBits);
 
-        uint64_t count = qf_count_key_value(&(qfarr[processName]), vals[i], 0, QF_KEY_IS_HASH);
+        uint64_t count = qf_count_key_value(&(qfarr[processName]), localhash, 0, QF_KEY_IS_HASH);
         if (count < freq) {
             fprintf(stderr, "failed lookup after insertion for %lx %ld.\n", vals[i],
                             count);

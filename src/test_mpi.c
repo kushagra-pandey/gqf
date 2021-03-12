@@ -95,10 +95,11 @@ int main(int argc, char** argv) {
 	
 	uint32_t processName = hash >> (nhashbits - processorBits);
 	uint64_t localhash = hash & BITMASK(nhashbits - processorBits);
+    printf("Num successful: %d, process: %d\n", i, rank);
 	if (processName == rank) {
 		//int ret = qf_inserthash(&qf, localhash, arr[i],0, freq, QF_NO_LOCK);
 		//int ret = qf_insert(&qf, arr[i], 0, freq, QF_NO_LOCK);
-        printf("Num successful: %d, process: %d\n", i, rank);
+        
 		int ret = qf_insert(&qf, localhash, 0, freq, QF_NO_LOCK | QF_KEY_IS_HASH);
         if (ret < 0) {
 			printf("Num successful: %d\n", i);

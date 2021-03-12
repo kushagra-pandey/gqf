@@ -1,4 +1,4 @@
-TARGETS=test test_threadsafe test_pc bm test_mpi
+TARGETS=test test_threadsafe test_pc bm test_mpi test_partition
 
 ifdef D
 	DEBUG=-g
@@ -47,6 +47,10 @@ test_threadsafe:		$(OBJDIR)/test_threadsafe.o $(OBJDIR)/gqf.o \
 										$(OBJDIR)/gqf_file.o $(OBJDIR)/hashutil.o \
 										$(OBJDIR)/partitioned_counter.o
 
+test_partition:		$(OBJDIR)/test_partition.o $(OBJDIR)/gqf.o \
+										$(OBJDIR)/gqf_file.o $(OBJDIR)/hashutil.o \
+										$(OBJDIR)/partitioned_counter.o
+
 test_pc:						$(OBJDIR)/test_partitioned_counter.o $(OBJDIR)/gqf.o \
 										$(OBJDIR)/gqf_file.o $(OBJDIR)/hashutil.o \
 										$(OBJDIR)/partitioned_counter.o
@@ -64,6 +68,10 @@ $(OBJDIR)/test.o: 						$(LOC_INCLUDE)/gqf.h $(LOC_INCLUDE)/gqf_file.h \
 															$(LOC_INCLUDE)/partitioned_counter.h
 
 $(OBJDIR)/test_threadsafe.o: 	$(LOC_INCLUDE)/gqf.h $(LOC_INCLUDE)/gqf_file.h \
+															$(LOC_INCLUDE)/hashutil.h \
+															$(LOC_INCLUDE)/partitioned_counter.h
+
+$(OBJDIR)/test_partition.o: 	$(LOC_INCLUDE)/gqf.h $(LOC_INCLUDE)/gqf_file.h \
 															$(LOC_INCLUDE)/hashutil.h \
 															$(LOC_INCLUDE)/partitioned_counter.h
 

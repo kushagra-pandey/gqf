@@ -36,15 +36,15 @@ int main(int argc, char** argv) {
     uint64_t localqbits = qbits - processorBits;
     uint64_t localhashbits = localqbits + 8;
     uint64_t localslots = (1ULL << localqbits);
-    if (!qf_initfile(&qf, localslots, localhashbits, 0, QF_HASH_INVERTIBLE, 0,
+    /*if (!qf_initfile(&qf, localslots, localhashbits, 0, QF_HASH_INVERTIBLE, 0,
                                      "mycqf.file")) {
         fprintf(stderr, "Can't allocate CQF.\n");
         abort();
-    }
-    /*if (!qf_malloc(&qf, localslots, localhashbits, 0, QF_HASH_INVERTIBLE, 0)) {
+    }*/
+    if (!qf_malloc(&qf, localslots, localhashbits, 0, QF_HASH_INVERTIBLE, 0)) {
 		fprintf(stderr, "Can't allocate CQF.\n");
 		abort();
-	}*/
+	}
 
     
     //qf_set_auto_resize(&qf, true);

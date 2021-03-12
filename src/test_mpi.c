@@ -123,6 +123,8 @@ int main(int argc, char** argv) {
 	}
 	i++;
     }
+    printf("all insertions before alltoallv successful for process %d\n\n", rank);
+
     MPI_Alltoallv(buffer_send, counts_send, displacements_send, MPI_INT, buffer_recv, counts_recv, displacements_recv, MPI_INT, MPI_COMM_WORLD);
 
     /*int numElements = buffer_recv[(buffer_send_length + 1) * rank];
@@ -146,6 +148,7 @@ int main(int argc, char** argv) {
     } */
 
     //now, insert all the buffer_recv elements
+    printf("Alltoallv successfull for process %d\n\n", rank);
     for(int i = 0; i < size; i++) {
         if (i == rank) {
             continue;

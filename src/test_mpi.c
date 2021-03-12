@@ -48,17 +48,16 @@ int main(int argc, char** argv) {
 
     
     //qf_set_auto_resize(&qf, true);
-    
-    uint64_t* arr = malloc(sizeof(arr[0]) * (nvals / size));
+    nvals = (uint64_t) ((nvals / size) * 0.9);
+    uint64_t* arr = malloc(sizeof(arr[0]) * nvals);
     
     srand(rank); //different seed for each process
-    for (int i = 0; i < nvals / size; i++) {
+    for (int i = 0; i < nvals; i++) {
     	arr[i] = rand() % nslots; //different seed for each process, so the numbers are different
     }
     printf("Process %d, first value is %d\n", rank, arr[0]);
 
-    int endofarr = (nvals / size);
-    int buffer_send_length = endofarr; //20 vals in each process bucket
+    int buffer_send_length = nvals; //20 vals in each process bucket
     int* buffer_send = (int*) malloc(sizeof(int) * (buffer_send_length+1) * size);
     for (int i = 0; i < (buffer_send_length+1)*size;i++) {
     	buffer_send[i] = 0;
@@ -89,7 +88,7 @@ int main(int argc, char** argv) {
 
     int i = 0;
 
-    while (i < endofarr) {
+    while (i < nvals) {
     	//uint64_t hashbucket = qf_gethashbucket(&qf, arr[i]);
 	
 	uint64_t hash = hash_64(arr[i], BITMASK(nhashbits));
@@ -126,7 +125,7 @@ int main(int argc, char** argv) {
     }
     MPI_Alltoallv(buffer_send, counts_send, displacements_send, MPI_INT, buffer_recv, counts_recv, displacements_recv, MPI_INT, MPI_COMM_WORLD);
 
-    int numElements = buffer_recv[(buffer_send_length + 1) * rank];
+    /*int numElements = buffer_recv[(buffer_send_length + 1) * rank];
     int start = (buffer_send_length + 1) * rank + 1;
     for (int i = start; i < start + numElements;i++) {
     	//int ret = qf_inserthash(&qf, localhash, arr[i],0, freq, QF_NO_LOCK);
@@ -144,7 +143,34 @@ int main(int argc, char** argv) {
                                 printf("Does not recognise return value.\n");
                         break;
                 }
-    } 
+    } */
+
+    //now, insert all the buffer_recv elements
+    for(int i = 0; i < size; i++) {
+        if (i == rank) {
+            continue;
+        }
+        int start = (buffer_send_length + 1) * i + 1;
+        int numElements = buffer_recv[(buffer_send_length + 1) * i];
+        for (int i = start; i < start + numElements;i++) {
+    	//int ret = qf_inserthash(&qf, localhash, arr[i],0, freq, QF_NO_LOCK);
+                uint64_t hash = hash_64(buffer_recv[i], BITMASK(nhashbits));
+                uint32_t processName = hash >> (nhashbits - processorBits);
+                uint64_t localhash = hash & BITMASK(nhashbits - processorBits);
+                int ret = qf_insert(&qf, localhash, 0, freq, QF_NO_LOCK | QF_KEY_IS_HASH);
+                if (ret < 0) {
+                        printf("Num successful: %d\n", i);
+                        if (ret == QF_NO_SPACE)
+                                printf("CQF is full.\n");
+                        else if (ret == QF_COULDNT_LOCK)
+                                printf("TRY_ONCE_LOCK failed.\n");
+                        else
+                                printf("Does not recognise return value.\n");
+                        break;
+                }
+        }
+
+    }
 	
 
 
@@ -160,10 +186,11 @@ int main(int argc, char** argv) {
 		
     		uint64_t count = qf_count_key_value(&qf, localhash, 0, QF_KEY_IS_HASH);
             if (count < freq) {
-                printf("Failed insertion for key %d, frequency %d: got count %d\n", arr[i], freq, count);
+                printf("Failed insertion in normal array iteration for key %d, frequency %d: got count %d\n", arr[i], freq, count);
             }
 	    }
     }
+    /*
     //int numElements = buffer_recv[(buffer_send_length + 1) * rank];
     //int start = (buffer_send_length + 1) * rank + 1;
     for (int i = start; i < start + numElements;i++) {
@@ -177,7 +204,27 @@ int main(int argc, char** argv) {
         	printf("Failed insertion for key %d, frequency %d: got count %d\n", buffer_recv[i], freq, count);
         }
     }
-    
+    */
+     for(int i = 0; i < size; i++) {
+        if (i == rank) {
+            continue;
+        }
+        int start = (buffer_send_length + 1) * i + 1;
+        int numElements = buffer_recv[(buffer_send_length + 1) * i];
+        for (int i = start; i < start + numElements;i++) {
+    	//int ret = qf_inserthash(&qf, localhash, arr[i],0, freq, QF_NO_LOCK);
+                uint64_t hash = hash_64(buffer_recv[i], BITMASK(nhashbits));
+                uint32_t processName = hash >> (nhashbits - processorBits);
+                uint64_t localhash = hash & BITMASK(nhashbits - processorBits);
+                uint64_t count = qf_count_key_value(&qf, localhash, 0, QF_KEY_IS_HASH);
+                if (count < freq) {
+        	        printf("Failed insertion for key %d, frequency %d: got count %d\n", buffer_recv[i], freq, count);
+                }
+        }
+
+    }
+
+
 
     MPI_Finalize();
 }

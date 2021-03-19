@@ -10,11 +10,18 @@
 
 int main(int argc, char** argv) {
     MPI_Init(NULL, NULL);
+
+
     int rank;
     int size;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &size);
     //printf("Hello: rank %d, size %d\n",rank, size);
+    time_t start_t, end_t;
+    double diff_t;
+
+    time(&start_t);
+
     int processorBits = ceil_log2(size);
     
 	
@@ -127,25 +134,7 @@ int main(int argc, char** argv) {
 
     MPI_Alltoallv(buffer_send, counts_send, displacements_send, MPI_INT, buffer_recv, counts_recv, displacements_recv, MPI_INT, MPI_COMM_WORLD);
 
-    /*int numElements = buffer_recv[(buffer_send_length + 1) * rank];
-    int start = (buffer_send_length + 1) * rank + 1;
-    for (int i = start; i < start + numElements;i++) {
-    	//int ret = qf_inserthash(&qf, localhash, arr[i],0, freq, QF_NO_LOCK);
-                uint64_t hash = hash_64(buffer_recv[i], BITMASK(nhashbits));
-                uint32_t processName = hash >> (nhashbits - processorBits);
-                uint64_t localhash = hash & BITMASK(nhashbits - processorBits);
-                int ret = qf_insert(&qf, localhash, 0, freq, QF_NO_LOCK | QF_KEY_IS_HASH);
-                if (ret < 0) {
-                        printf("Num successful: %d\n", i);
-                        if (ret == QF_NO_SPACE)
-                                printf("CQF is full.\n");
-                        else if (ret == QF_COULDNT_LOCK)
-                                printf("TRY_ONCE_LOCK failed.\n");
-                        else
-                                printf("Does not recognise return value.\n");
-                        break;
-                }
-    } */
+    
 
     //now, insert all the buffer_recv elements
     printf("Alltoallv successfull for process %d\n\n", rank);
@@ -193,21 +182,7 @@ int main(int argc, char** argv) {
             }
 	    }
     }
-    /*
-    //int numElements = buffer_recv[(buffer_send_length + 1) * rank];
-    //int start = (buffer_send_length + 1) * rank + 1;
-    for (int i = start; i < start + numElements;i++) {
-        //int ret = qf_inserthash(&qf, localhash, arr[i],0, freq, QF_NO_LOCK);
-        uint64_t hash = hash_64(buffer_recv[i], BITMASK(nhashbits));
-        uint32_t processName = hash >> (nhashbits - processorBits);
-        uint64_t localhash = hash & BITMASK(nhashbits - processorBits);
-
-    	uint64_t count = qf_count_key_value(&qf, localhash, 0, QF_KEY_IS_HASH);
-        if (count < freq) {
-        	printf("Failed insertion for key %d, frequency %d: got count %d\n", buffer_recv[i], freq, count);
-        }
-    }
-    */
+    
      for(int i = 0; i < size; i++) {
         if (i == rank) {
             continue;
@@ -227,7 +202,10 @@ int main(int argc, char** argv) {
 
     }
     printf("finished for rank %d\n", rank);
+    time(&end_t);
+    diff_t = difftime(end_t, start_t);
 
+    printf("Execution time for rank %d = %f\n", diff_t, rank);
 
     MPI_Finalize();
 }

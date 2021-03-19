@@ -20,9 +20,14 @@ int main(int argc, char **argv)
 {
 
 
+    time_t start_t, end_t;
+    double diff_t;
+
+    printf("Starting of the program...\n");
+    time(&start_t);
 
     QF qf;
-    uint64_t qbits = 10;
+    uint64_t qbits = 20;
     uint64_t freq = 4;
     uint64_t nhashbits = qbits + 8;
     uint64_t nslots = (1ULL << qbits);
@@ -71,7 +76,11 @@ int main(int argc, char **argv)
         }
     }
     printf("Finished querying cqf\n");
+    time(&end_t);
+    diff_t = difftime(end_t, start_t);
 
+    printf("Execution time = %f\n", diff_t);
+    printf("Exiting of the program...\n");
 
 
     /* Now, we create 4 quotient filters each with 8 quotient bits, and for each query we use the top 2 bits

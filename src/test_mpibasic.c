@@ -38,7 +38,10 @@ int main(int argc, char** argv) {
 
     /* First, a sanity test to make sure a gqf works */
     uint64_t *vals;
-    nvals = (uint64_t) ((nvals / size) * 0.9);
+    //nvals = (uint64_t) ((nvals / size) * 0.9);
+    nvals = (750 * localslots) / 1000;
+    nvals = nvals/freq;
+    
     vals = (uint64_t*)malloc(nvals*sizeof(vals[0]));
         //RAND_bytes((unsigned char *)vals, sizeof(*vals) * nvals);
     srand(rank);

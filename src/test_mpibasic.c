@@ -18,60 +18,6 @@ int main(int argc, char** argv) {
     int processorBits = ceil_log2(size);
     
 	
-    /*QF qf; //every process gets its own quotient filter
-
-    
-    uint64_t qbits = 10; //arbitrary value
-    uint64_t freq = 4; //freq of each object
-    uint64_t nhashbits = qbits + 8; //remainder bits also arbitrarily set at 8
-    uint64_t nslots = (1ULL << qbits);
-    uint64_t nvals = 750*nslots/1000;
-    nvals = nvals/freq;
-	
-
-
-    uint64_t localqbits = qbits - processorBits;
-    uint64_t localhashbits = localqbits + 8;
-    uint64_t localslots = (1ULL << localqbits);
-    
-    if (!qf_malloc(&qf, localslots, localhashbits, 0, QF_HASH_INVERTIBLE, 0)) {
-		fprintf(stderr, "Can't allocate CQF.\n");
-		abort();
-	}
-
-    
-    //qf_set_auto_resize(&qf, true);
-    
-    //nvals = (uint64_t) ((nvals / size) * 0.9);
-
-    uint64_t* arr = malloc(sizeof(arr[0]) * nvals);
-    
-    srand(rank); //different seed for each process
-    for (int i = 0; i < nvals; i++) {
-    	arr[i] = rand() % qf.metadata->range; 
-    }
-    printf("Process %d, first value is %d\n", rank, arr[0]);
-
-
-    int i = 0;
-
-    while (i < nvals) {
-    	//uint64_t hashbucket = qf_gethashbucket(&qf, arr[i]);
-	
-	    int ret = qf_insert(&qf, arr[i], 0, freq, QF_NO_LOCK);
-
-	    i++;
-    }
-    printf("all insertions before alltoallv successful for process %d\n\n", rank);
-
-    for(int i = 0; i < nvals; i++) {
-
-    }
-    */
-
-
-
-
     QF qf;
     uint64_t qbits = 10;
     uint64_t freq = 4;
@@ -80,7 +26,11 @@ int main(int argc, char** argv) {
     uint64_t nvals = 750*nslots/1000;
     nvals = nvals/freq;
 
-    if (!qf_malloc(&qf, nslots, nhashbits, 0, QF_HASH_INVERTIBLE, 0)) {
+    uint64_t localqbits = qbits - processorBits;
+    uint64_t localhashbits = localqbits + 8;
+    uint64_t localslots = (1ULL << localqbits);
+
+    if (!qf_malloc(&qf, localslots, localhashbits, 0, QF_HASH_INVERTIBLE, 0)) {
             fprintf(stderr, "Can't allocate CQF.\n");
             abort();
     }
@@ -88,9 +38,10 @@ int main(int argc, char** argv) {
 
     /* First, a sanity test to make sure a gqf works */
     uint64_t *vals;
+    nvals = (uint64_t) ((nvals / size) * 0.9);
     vals = (uint64_t*)malloc(nvals*sizeof(vals[0]));
         //RAND_bytes((unsigned char *)vals, sizeof(*vals) * nvals);
-    srand(1);
+    srand(rank);
     for (uint64_t i = 0; i < nvals; i++) {
         vals[i] = (1 * rand()) % qf.metadata->range;
         /*vals[i] = rand() % qf.metadata->range;*/

@@ -24,7 +24,7 @@ int main(int argc, char** argv) {
     QF qf; //every process gets its own quotient filter
 
     
-    uint64_t qbits = 10; //arbitrary value
+    uint64_t qbits = 20; //arbitrary value
     uint64_t freq = 4; //freq of each object
     uint64_t nhashbits = qbits + 8; //remainder bits also arbitrarily set at 8
     uint64_t nslots = (1ULL << qbits);
@@ -36,6 +36,7 @@ int main(int argc, char** argv) {
     uint64_t localqbits = qbits - processorBits;
     uint64_t localhashbits = localqbits + 8;
     uint64_t localslots = (1ULL << localqbits);
+    
     /*if (!qf_initfile(&qf, localslots, localhashbits, 0, QF_HASH_INVERTIBLE, 0,
                                      "mycqf.file")) {
         fprintf(stderr, "Can't allocate CQF.\n");
@@ -51,7 +52,7 @@ int main(int argc, char** argv) {
     nvals = (uint64_t) ((nvals / size) * 0.9);
     uint64_t* arr = malloc(sizeof(arr[0]) * nvals);
     
-    srand(2*rank); //different seed for each process
+    srand(rank); //different seed for each process
     for (int i = 0; i < nvals; i++) {
     	arr[i] = rand() % qf.metadata->range; //different seed for each process, so the numbers are different
     }

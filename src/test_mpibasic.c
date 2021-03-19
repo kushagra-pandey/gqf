@@ -19,7 +19,7 @@ int main(int argc, char** argv) {
     
 	
     QF qf;
-    uint64_t qbits = 12;
+    uint64_t qbits = atoi(argv[1]);
     uint64_t freq = 4;
     uint64_t nhashbits = qbits + 8;
     uint64_t nslots = (1ULL << qbits);

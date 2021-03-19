@@ -28,7 +28,7 @@ int main(int argc, char** argv) {
     QF qf; //every process gets its own quotient filter
 
     
-    uint64_t qbits = 24; //arbitrary value
+    uint64_t qbits = 22; //arbitrary value
     uint64_t freq = 4; //freq of each object
     uint64_t nhashbits = qbits + 8; //remainder bits also arbitrarily set at 8
     uint64_t nslots = (1ULL << qbits);

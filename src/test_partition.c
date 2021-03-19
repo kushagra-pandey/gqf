@@ -27,7 +27,7 @@ int main(int argc, char **argv)
     time(&start_t);
 
     QF qf;
-    uint64_t qbits = argv[0];
+    uint64_t qbits = atoi(argv[1]);
     uint64_t freq = 4;
     uint64_t nhashbits = qbits + 8;
     uint64_t nslots = (1ULL << qbits);

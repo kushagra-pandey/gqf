@@ -16,10 +16,7 @@ int main(int argc, char** argv) {
     MPI_Comm_size(MPI_COMM_WORLD, &size);
     //printf("Hello: rank %d, size %d\n",rank, size);
     int processorBits = ceil_log2(size);
-    /*if (rank == 0) {
-    	printf("Hello world!\n");
-	printf("The number of bits of the processors is %d", processorBits);
-    }*/
+    
 	
     QF qf; //every process gets its own quotient filter
 
@@ -96,7 +93,7 @@ int main(int argc, char** argv) {
 	
 	uint32_t processName = hash >> (nhashbits - processorBits);
 	uint64_t localhash = hash & BITMASK(nhashbits - processorBits);
-    printf("Num successful: %d, process: %d\n", i, rank);
+    //printf("Num successful: %d, process: %d\n", i, rank);
 	if (processName == rank) {
 		//int ret = qf_inserthash(&qf, localhash, arr[i],0, freq, QF_NO_LOCK);
 		//int ret = qf_insert(&qf, arr[i], 0, freq, QF_NO_LOCK);
@@ -229,7 +226,7 @@ int main(int argc, char** argv) {
         }
 
     }
-
+    printf("finished for rank %d\n", rank);
 
 
     MPI_Finalize();

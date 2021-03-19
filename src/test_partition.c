@@ -27,7 +27,7 @@ int main(int argc, char **argv)
     time(&start_t);
 
     QF qf;
-    uint64_t qbits = 20;
+    uint64_t qbits = 50;
     uint64_t freq = 4;
     uint64_t nhashbits = qbits + 8;
     uint64_t nslots = (1ULL << qbits);
@@ -91,7 +91,7 @@ int main(int argc, char **argv)
     QF qf3;
     QF qf4;
 
-    qbits = 8;
+    qbits = qbits - 2;
     nhashbits = qbits + 8;
     nslots = (1ULL << qbits);
 

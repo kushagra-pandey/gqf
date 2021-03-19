@@ -58,7 +58,7 @@ test_mpi:                $(OBJDIR)/test_mpi.o $(OBJDIR)/gqf.o \
                                                                                 $(OBJDIR)/gqf_file.o $(OBJDIR)/hashutil.o \
                                                                                 $(OBJDIR)/partitioned_counter.o
 
-test_mpibasic:                $(OBJDIR)/test_mpi.o $(OBJDIR)/gqf.o \
+test_mpibasic:                $(OBJDIR)/test_mpibasic.o $(OBJDIR)/gqf.o \
                                                                                 $(OBJDIR)/gqf_file.o $(OBJDIR)/hashutil.o \
                                                                                 $(OBJDIR)/partitioned_counter.o
 

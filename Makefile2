@@ -1,4 +1,4 @@
-TARGETS=test test_threadsafe test_pc bm test_mpi
+TARGETS=test test_threadsafe test_pc bm test_mpi test_mpibasic
 
 ifdef D
 	DEBUG=-g
@@ -57,6 +57,11 @@ bm:									$(OBJDIR)/bm.o $(OBJDIR)/gqf.o $(OBJDIR)/gqf_file.o \
 test_mpi:                $(OBJDIR)/test_mpi.o $(OBJDIR)/gqf.o \
                                                                                 $(OBJDIR)/gqf_file.o $(OBJDIR)/hashutil.o \
                                                                                 $(OBJDIR)/partitioned_counter.o
+
+test_mpibasic:                $(OBJDIR)/test_mpi.o $(OBJDIR)/gqf.o \
+                                                                                $(OBJDIR)/gqf_file.o $(OBJDIR)/hashutil.o \
+                                                                                $(OBJDIR)/partitioned_counter.o
+
 # dependencies between .o files and .h files
 
 $(OBJDIR)/test.o: 						$(LOC_INCLUDE)/gqf.h $(LOC_INCLUDE)/gqf_file.h \
@@ -71,6 +76,10 @@ $(OBJDIR)/bm.o:								$(LOC_INCLUDE)/gqf_wrapper.h \
 															$(LOC_INCLUDE)/partitioned_counter.h
 
 $(OBJDIR)/test_mpi.o:    $(LOC_INCLUDE)/gqf.h $(LOC_INCLUDE)/gqf_file.h \
+                                                                                                                        $(LOC_INCLUDE)/hashutil.h \
+                                                                                                                        $(LOC_INCLUDE)/partitioned_counter.h
+
+$(OBJDIR)/test_mpibasic.o:    $(LOC_INCLUDE)/gqf.h $(LOC_INCLUDE)/gqf_file.h \
                                                                                                                         $(LOC_INCLUDE)/hashutil.h \
                                                                                                                         $(LOC_INCLUDE)/partitioned_counter.h
 # dependencies between .o files and .cc (or .c) files

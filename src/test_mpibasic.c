@@ -30,7 +30,7 @@ int main(int argc, char** argv) {
     uint64_t localhashbits = localqbits + 8;
     uint64_t localslots = (1ULL << localqbits);
 
-    if (!qf_malloc(&qf, nslots, nhashbits, 0, QF_HASH_INVERTIBLE, 0)) {
+    if (!qf_malloc(&qf, localslots, localhashbits, 0, QF_HASH_INVERTIBLE, 0)) {
             fprintf(stderr, "Can't allocate CQF.\n");
             abort();
     }
@@ -38,9 +38,10 @@ int main(int argc, char** argv) {
 
     /* First, a sanity test to make sure a gqf works */
     uint64_t *vals;
+    nvals = (uint64_t) ((nvals / size) * 0.9);
     vals = (uint64_t*)malloc(nvals*sizeof(vals[0]));
         //RAND_bytes((unsigned char *)vals, sizeof(*vals) * nvals);
-    srand(1);
+    srand(rank);
     for (uint64_t i = 0; i < nvals; i++) {
         vals[i] = (1 * rand()) % qf.metadata->range;
         /*vals[i] = rand() % qf.metadata->range;*/

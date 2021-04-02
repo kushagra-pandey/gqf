@@ -26,11 +26,11 @@ int main(int argc, char** argv) {
     uint64_t nvals = 750*nslots/1000;
     nvals = nvals/freq;
 
-    uint64_t localqbits = qbits - processorBits;
-    uint64_t localhashbits = localqbits + 8;
-    uint64_t localslots = (1ULL << localqbits);
+    //uint64_t localqbits = qbits - processorBits;
+    //uint64_t localhashbits = localqbits + 8;
+    //uint64_t localslots = (1ULL << localqbits);
 
-    if (!qf_malloc(&qf, localslots, localhashbits, 0, QF_HASH_INVERTIBLE, 0)) {
+    if (!qf_malloc(&qf, nslots, nhashbits, 0, QF_HASH_INVERTIBLE, 0)) {
             fprintf(stderr, "Can't allocate CQF.\n");
             abort();
     }

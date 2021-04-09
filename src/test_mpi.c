@@ -153,7 +153,7 @@ int main(int argc, char** argv) {
                 if (ret < 0) {
                         printf("Num successful: %d\n", i);
                         if (ret == QF_NO_SPACE)
-                                printf("CQF is full for rank %d.\n", );
+                                printf("CQF is full for rank %d.\n", rank);
                         else if (ret == QF_COULDNT_LOCK)
                                 printf("TRY_ONCE_LOCK failed.\n");
                         else

@@ -164,7 +164,7 @@ int main(int argc, char** argv) {
 
     }
 	
-
+     printf("insertions successfull for process %d\n\n", rank);
 
 
 

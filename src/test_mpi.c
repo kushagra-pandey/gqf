@@ -88,7 +88,7 @@ int main(int argc, char** argv) {
     for (int i = 0; i < size; i++) {
         displacements_recv[i] = (buffer_send_length + 1) * i;
     }
-    printf("successfully initialized alltoallv buffers\n\n");
+    printf("successfully initialized alltoallv buffers for rank %d\n\n", rank);
 
 
     int i = 0;
@@ -153,7 +153,7 @@ int main(int argc, char** argv) {
                 if (ret < 0) {
                         printf("Num successful: %d\n", i);
                         if (ret == QF_NO_SPACE)
-                                printf("CQF is full.\n");
+                                printf("CQF is full for rank %d.\n", );
                         else if (ret == QF_COULDNT_LOCK)
                                 printf("TRY_ONCE_LOCK failed.\n");
                         else

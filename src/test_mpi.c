@@ -123,7 +123,7 @@ int main(int argc, char** argv) {
 		 */
 	} else {
 		//add to bucket
-        printf("Inside else for process %d\n", rank)
+        printf("Inside else for process %d\n", rank);
 		buffer_send[(buffer_send_length + 1) * processName]++;
         printf("else1 successfull for process %d\n", rank);
 		int offset = buffer_send[(buffer_send_length + 1) * processName];

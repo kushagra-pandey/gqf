@@ -64,7 +64,7 @@ int main(int argc, char** argv) {
     /* Insert keys in the CQF */
     for (uint64_t i = 0; i < nvals; i++) {
         //int ret = qf_insert(&qf, vals[i], 0, freq, QF_NO_LOCK);
-        int ret = insertarr(qf, vals[i], curIndex, nslots, freq)
+        int ret = insertarr(qf, vals[i], curIndex, nslots, freq);
         if (ret < 0) {
             fprintf(stderr, "failed insertion for key: %lx %d.\n", vals[i], 50);
             abort();
